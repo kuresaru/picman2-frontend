@@ -1,7 +1,7 @@
 <template lang="pug">
 md-app
   md-app-toolbar.md-primary
-    .md-toolbar-section-start: span.md-title title
+    .md-toolbar-section-start: span.md-title 暮光小猿图片管理器2
     .md-toolbar-section-end
       md-menu(md-direction="top-end")
         md-button.md-icon-button.menu-trigger(md-menu-trigger): md-icon more_vert
@@ -14,9 +14,9 @@ md-app
   md-app-content
     .search-bar
       .search-input
-        md-field
+        md-field(md-clearable)
           label 输入搜索关键字
-          md-input(v-model="keyword")
+          md-input(v-model="keyword", autofocus, @keyup.enter="search")
           span.md-helper-text 描述和Tag都可以呀
       .search-btn
         md-button.md-accent.md-raised(@click="search") 搜索
