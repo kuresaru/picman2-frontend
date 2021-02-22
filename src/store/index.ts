@@ -40,6 +40,12 @@ export default new Vuex.Store({
         return state.user.sacUserPrincipal.nickname;
       }
       return undefined;
+    },
+    loggedIn: state => {
+      return state.loaded && (!!state.user);
+    },
+    notLogin: state => {
+      return state.loaded && (!state.user);
     }
   },
   modules: {

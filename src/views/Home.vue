@@ -1,15 +1,17 @@
 <template lang="pug">
 md-app
   md-app-toolbar.md-primary
-    .md-toolbar-section-start: span.md-title 暮光小猿图片管理器2
+    .md-toolbar-section-start
+      span.md-title 暮光小猿图片管理器2
+        span.not-login-hint(v-if="notLogin") &nbsp;&nbsp;[未登录]
     .md-toolbar-section-end
       md-menu(md-direction="top-end")
         md-button.md-icon-button.menu-trigger(md-menu-trigger): md-icon more_vert
         md-menu-content
-          md-menu-item(@click="login", v-if="!$store.getters.nickname") 登录
+          md-menu-item(@click="login", v-if="notLogin") 登录
           md-menu-item(
             @click="$router.push({ path: '/piclib' })",
-            v-if="!!$store.getters.nickname"
+            v-if="loggedIn"
           ) 图库管理
   md-app-content
     .search-bar
@@ -30,59 +32,69 @@ md-app
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { Component, Vue } from "vue-property-decorator";
 import Gallery from "@/components/Gallery.vue";
-export default Vue.extend({
-  name: "Home",
+@Component({
   components: {
     Gallery,
   },
-  data() {
-    return {
-      keyword: undefined as string | undefined,
-      showSnackBar: false as boolean,
-      snackMsg: "" as string,
-      searchResult: [] as Picman.PictureDetail[],
-    };
-  },
-  methods: {
-    login() {
-      window.location.href = "/login";
-    },
-    search() {
-      if (!this.keyword || this.keyword.length <= 0) {
-        this.snack("搜索关键字不能为空");
-      } else {
-        this.$axios
-          .get("/api/lib/finder?search=" + this.keyword)
-          .then((response) => {
-            let result: Picman.RequestResult = response.data;
-            let details: Picman.PictureDetail[] = result.data;
-            this.searchResult = details;
-            console.log(details);
-            if (details.length == 0) {
-              this.snack("搜索结果为空");
-            }
-          })
-          .catch((err) => this.snack(err));
-      }
-    },
-    snack(msg: string) {
-      console.log(msg);
-      this.snackMsg = msg;
-      this.showSnackBar = true;
-    },
-  },
+})
+export default class Home extends Vue {
+  private keyword: string = "";
+  private showSnackBar: boolean = false;
+  private snackMsg: string = "";
+  private searchResult: Picman.PictureDetail[] = [];
+
+  get notLogin(): boolean {
+    return this.$store.getters.notLogin;
+  }
+
+  get loggedIn(): boolean {
+    return this.$store.getters.loggedIn;
+  }
+
+  login() {
+    window.location.href = "/login";
+  }
+
+  search() {
+    if (!this.keyword || this.keyword.length <= 0) {
+      this.snack("搜索关键字不能为空");
+    } else {
+      this.$axios
+        .get("/api/lib/finder?search=" + this.keyword)
+        .then((response) => {
+          let result: Picman.RequestResult = response.data;
+          let details: Picman.PictureDetail[] = result.data;
+          this.searchResult = details;
+          console.log(details);
+          if (details.length == 0) {
+            this.snack("搜索结果为空");
+          }
+        })
+        .catch((err) => this.snack(err));
+    }
+  }
+
+  snack(msg: string) {
+    console.log(msg);
+    this.snackMsg = msg;
+    this.showSnackBar = true;
+  }
+
   mounted() {
     this.$store.dispatch("checkUser");
-  },
-});
+  }
+}
 </script>
 
 <style lang="scss" scoped>
 .md-app {
   height: 100vh;
   width: 100vw;
+  .not-login-hint {
+    font-size: 14px;
+  }
   .md-app-content {
     .search-bar {
       display: flex;
