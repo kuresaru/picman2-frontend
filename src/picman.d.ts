@@ -19,4 +19,16 @@ declare module Picman {
         picCount: number,
         readonly: boolean,
     };
+    export type PictureDetail = {
+        pid: string,
+        description: string,
+        tags: string[],
+        fileSize: number,
+        width: number,
+        height: number,
+        createTime: number,
+        lastModify: number,
+        valid: boolean,
+        accessLibrary: number,
+    };
 }

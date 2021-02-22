@@ -48,7 +48,6 @@ div
 </template>
 
 <script lang="ts">
-import { AxiosInstance } from "axios";
 import MessageAlert from "@/components/MessageAlert.vue";
 import PiclibInfoDialog from "@/components/PiclibInfoDialog.vue";
 import Vue from "vue";
