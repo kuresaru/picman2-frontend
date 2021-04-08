@@ -48,6 +48,7 @@
         @click="upload",
         :disabled="uploading || !formValid"
       ) 上传
+      img(ref="imgPreview")
   message-alert(:show.sync="showMessageAlert", :msg="msgAlert")
 </template>
 
@@ -63,6 +64,8 @@ import MessageAlert from "@/components/MessageAlert.vue";
 export default class Upload extends Vue {
   @Ref("pagediv")
   private pagediv!: HTMLDivElement;
+  @Ref("imgPreview")
+  private imgPreview!: HTMLImageElement;
   private fileInput: HTMLInputElement | null = null;
   private readOnly = false;
   private desc = "";
@@ -131,12 +134,24 @@ export default class Upload extends Vue {
     await this.selectFile(fileList[0]);
   }
 
+  loadPreviewImg(file: File) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      let src = <string | null | undefined>e.target?.result;
+      if (src) {
+        this.imgPreview.src = src;
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
   // 选择图片时生成图片pid
   async selectFile(file: File) {
     let array = file.name.split(".");
     let ext = array[array.length - 1];
     const support = ["jpg", "jpeg", "png", "gif"];
     if (support.indexOf(ext) != -1) {
+      this.loadPreviewImg(file);
       this.file = file;
       let md5 = await filemd5(this.file);
       if (array && array.length > 1) {
