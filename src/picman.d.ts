@@ -31,4 +31,20 @@ declare module Picman {
         valid: boolean,
         accessLibrary: number,
     };
+    export type UpdatePictureMetaRequest = {
+        description: string,
+        tags: string[],
+    };
+    export type UpdatePictureMetaResult = {
+        accessLibrary: number,
+        createTime: number,
+        description: string,
+        fileSize: number,
+        height: number,
+        lastModify: number,
+        pid: string,
+        tags: string[]
+        valid: boolean,
+        width: number,
+    };
 }
