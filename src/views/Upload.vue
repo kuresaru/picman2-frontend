@@ -13,7 +13,7 @@
           accept="image/*",
           @md-change="onFileChange"
         )
-        span.md-helper-text 选择或拖动一张图片上传吧
+        span.md-helper-text 选择,粘贴,或拖动一张图片上传吧
       md-field
         label 描述
         md-input(v-model="desc", :readonly="readOnly")
@@ -192,10 +192,29 @@ export default class Upload extends Vue {
     }
   }
 
+  async onPaste(event: ClipboardEvent) {
+    let items = event.clipboardData?.items;
+    let file: File | null = null;
+    if (items && items.length > 0) {
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf("image") !== -1) {
+          file = items[i].getAsFile();
+          break;
+        }
+      }
+    }
+    if (!file) {
+      this.msg("粘贴内容不包含图片");
+    } else {
+      await this.selectFile(file);
+    }
+  }
+
   mounted() {
     this.pagediv.addEventListener("dragenter", this.onDrag, false);
     this.pagediv.addEventListener("dragover", this.onDrag, false);
     this.pagediv.addEventListener("drop", this.onDrop, false);
+    document.addEventListener("paste", this.onPaste);
     this.loadPiclib();
   }
 }
