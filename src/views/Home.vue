@@ -5,6 +5,7 @@ md-app
       span.md-title 暮光小猿图片管理器2
         span.not-login-hint(v-if="notLogin") &nbsp;&nbsp;[未登录]
     .md-toolbar-section-end
+      md-button(@click="upload") 上传新图片
       md-menu(md-direction="top-end")
         md-button.md-icon-button.menu-trigger(md-menu-trigger): md-icon more_vert
         md-menu-content
@@ -55,6 +56,10 @@ export default class Home extends Vue {
 
   login() {
     window.location.href = "/login";
+  }
+
+  upload() {
+    this.$router.push("/upload");
   }
 
   search() {
