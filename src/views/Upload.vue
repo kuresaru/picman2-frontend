@@ -1,5 +1,5 @@
 <template lang="pug">
-div
+.pagediv(ref="pagediv")
   md-app
     md-app-toolbar.md-primary
       .md-toolbar-section-start
@@ -13,7 +13,7 @@ div
           accept="image/*",
           @md-change="onFileChange"
         )
-        span.md-helper-text 选择一张图片上传吧
+        span.md-helper-text 选择或拖动一张图片上传吧
       md-field
         label 描述
         md-input(v-model="desc", :readonly="readOnly")
@@ -52,7 +52,7 @@ div
 </template>
 
 <script lang="ts">
-import { Vue, Component } from "vue-property-decorator";
+import { Vue, Ref, Component } from "vue-property-decorator";
 import filemd5 from "@/plugins/filemd5";
 import MessageAlert from "@/components/MessageAlert.vue";
 @Component({
@@ -61,6 +61,8 @@ import MessageAlert from "@/components/MessageAlert.vue";
   },
 })
 export default class Upload extends Vue {
+  @Ref("pagediv")
+  private pagediv!: HTMLDivElement;
   private fileInput: HTMLInputElement | null = null;
   private readOnly = false;
   private desc = "";
@@ -125,15 +127,24 @@ export default class Upload extends Vue {
     }
   }
 
-  // 选择图片时生成图片pid
   async onFileChange(fileList: File[]) {
-    this.file = fileList[0];
-    let md5 = await filemd5(this.file);
-    let array = this.file.name.split(".");
-    if (array && array.length > 1) {
-      let ext = array[array.length - 1];
-      this.pid = md5 + "." + ext;
-      this.checkPicture(this.pid);
+    await this.selectFile(fileList[0]);
+  }
+
+  // 选择图片时生成图片pid
+  async selectFile(file: File) {
+    let array = file.name.split(".");
+    let ext = array[array.length - 1];
+    const support = ["jpg", "jpeg", "png", "gif"];
+    if (support.indexOf(ext) != -1) {
+      this.file = file;
+      let md5 = await filemd5(this.file);
+      if (array && array.length > 1) {
+        this.pid = md5 + "." + ext;
+        this.checkPicture(this.pid);
+      }
+    } else {
+      this.msg("文件格式错误");
     }
   }
 
@@ -167,14 +178,35 @@ export default class Upload extends Vue {
     this.showMessageAlert = true;
   }
 
+  onDrag(e: DragEvent) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+
+  async onDrop(e: DragEvent) {
+    e.stopPropagation();
+    e.preventDefault();
+    const data = e.dataTransfer?.files[0];
+    if (data) {
+      await this.selectFile(data);
+    }
+  }
+
   mounted() {
+    this.pagediv.addEventListener("dragenter", this.onDrag, false);
+    this.pagediv.addEventListener("dragover", this.onDrag, false);
+    this.pagediv.addEventListener("drop", this.onDrop, false);
     this.loadPiclib();
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.upload-btn {
-  float: right;
+.pagediv {
+  width: 100vw;
+  height: 100vh;
+  .upload-btn {
+    float: right;
+  }
 }
 </style>
