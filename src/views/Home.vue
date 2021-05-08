@@ -5,7 +5,7 @@ md-app
       span.md-title 暮光小猿图片管理器2
         span.not-login-hint(v-if="notLogin") &nbsp;&nbsp;[未登录]
     .md-toolbar-section-end
-      md-button(@click="upload") 上传新图片
+      md-button(@click="upload", v-if="loggedIn") 上传新图片
       md-menu(md-direction="top-end")
         md-button.md-icon-button.menu-trigger(md-menu-trigger): md-icon more_vert
         md-menu-content
@@ -14,6 +14,7 @@ md-app
             @click="$router.push({ path: '/piclib' })",
             v-if="loggedIn"
           ) 图库管理
+          md-menu-item(@click="downloadApp") 下载APP
   md-app-content
     .search-bar
       .search-input
@@ -60,6 +61,10 @@ export default class Home extends Vue {
     window.location.href = "/login";
   }
 
+  downloadApp() {
+    window.open("https://www.scraft.top/dl/pm/", "_blank");
+  }
+
   upload() {
     this.$router.push("/upload");
   }
@@ -71,7 +76,7 @@ export default class Home extends Vue {
 
   search() {
     if (!this.keyword || this.keyword.length <= 0) {
-      this.searchResult = []
+      this.searchResult = [];
     } else {
       this.$axios
         .get("/api/lib/finder?search=" + this.keyword)
