@@ -33,7 +33,8 @@ md-app
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Watch, Vue } from "vue-property-decorator";
+import * as _ from "lodash";
 import Gallery from "@/components/Gallery.vue";
 @Component({
   components: {
@@ -45,6 +46,7 @@ export default class Home extends Vue {
   private showSnackBar: boolean = false;
   private snackMsg: string = "";
   private searchResult: Picman.PictureDetail[] = [];
+  private onSearchInputChangeDebounceFunc = _.debounce(this.search, 200);
 
   get notLogin(): boolean {
     return this.$store.getters.notLogin;
@@ -62,9 +64,14 @@ export default class Home extends Vue {
     this.$router.push("/upload");
   }
 
+  @Watch("keyword")
+  onSearchInputChange() {
+    this.onSearchInputChangeDebounceFunc();
+  }
+
   search() {
     if (!this.keyword || this.keyword.length <= 0) {
-      this.snack("搜索关键字不能为空");
+      this.searchResult = []
     } else {
       this.$axios
         .get("/api/lib/finder?search=" + this.keyword)
