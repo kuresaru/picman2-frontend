@@ -79,7 +79,7 @@ export default class Home extends Vue {
       this.searchResult = [];
     } else {
       this.$axios
-        .get("/api/lib/finder?search=" + this.keyword)
+        .get("/api/lib/finder?search=" + encodeURIComponent(this.keyword))
         .then((response) => {
           let result: Picman.RequestResult = response.data;
           let details: Picman.PictureDetail[] = result.data;
